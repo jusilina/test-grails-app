@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+  <testsuite errors="0" failures="0" hostname="n103285" id="0" name="PersonIntegrationTests" package="grailsapp" tests="1" time="0.208" timestamp="2013-10-02T15:03:12">
+      <properties />
+
+      <testcase classname="grailsapp.PersonIntegrationTests" name="testSomething" time="0.196" />
+
+      <system-out><![CDATA[--Output from testSomething--
+]]></system-out>
+
+      <system-err><![CDATA[--Output from testSomething--
+]]></system-err>
+
+  </testsuite>
+  <testsuite errors="0" failures="0" hostname="n103285" id="1" name="ProjectIntegrationTests" package="grailsapp" tests="1" time="0.141" timestamp="2013-10-02T15:03:12">
+      <properties />
+
+      <testcase classname="grailsapp.ProjectIntegrationTests" name="testFirstProject" time="0.139" />
+
+      <system-out><![CDATA[--Output from testFirstProject--
+]]></system-out>
+
+      <system-err><![CDATA[--Output from testFirstProject--
+]]></system-err>
+
+  </testsuite>
+</testsuites>
