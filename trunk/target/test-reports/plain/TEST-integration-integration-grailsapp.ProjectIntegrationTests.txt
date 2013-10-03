@@ -1,0 +1,10 @@
+Testsuite: grailsapp.ProjectIntegrationTests
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0,141 sec
+------------- Standard Output ---------------
+--Output from testFirstProject--
+------------- ---------------- ---------------
+------------- Standard Error -----------------
+--Output from testFirstProject--
+------------- ---------------- ---------------
+
+Testcase: testFirstProject took 0,139 sec
