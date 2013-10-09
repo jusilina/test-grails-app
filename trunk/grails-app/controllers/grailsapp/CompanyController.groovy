@@ -1,6 +1,7 @@
 package grailsapp
 
 import org.springframework.dao.DataIntegrityViolationException
+import grails.converters.JSON
 
 class CompanyController {
     def scaffold = true
@@ -8,7 +9,7 @@ class CompanyController {
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     def index() {
-        redirect(action: "list", params: params)
+//        redirect(action: "list", params: params)
     }
 
     def list(Integer max) {
@@ -16,9 +17,11 @@ class CompanyController {
         [companyInstanceList: Company.list(params), companyInstanceTotal: Company.count()]
     }
 
+
     def create() {
         [companyInstance: new Company(params)]
     }
+
 
     def save() {
         def companyInstance = new Company(params)
@@ -100,4 +103,6 @@ class CompanyController {
             redirect(action: "show", id: id)
         }
     }
+
+
 }

@@ -15,6 +15,6 @@ class Project {
     }
 
     static  belongsTo = [unit : Unit]
-    static hasMany = [persons : Person]
+    static  hasMany = [persons : Person]
 
 }
