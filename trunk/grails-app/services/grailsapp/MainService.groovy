@@ -6,7 +6,11 @@ class MainService {
     static final String unitId = '_unt';
     static final String projectId = '_prj';
     static final String personId = '_prs';
+    def removeObject (removeObjectId){
+        def model = getModel(removeObjectId);
+        model.delete()
 
+    }
     def saveObject(grailsParameterMap) {
         def status
         def success = true

@@ -57,6 +57,16 @@ class MainController {
 
     }
 
+    def removeObject ={
+        def status = [success: false] ;
+        if (params?.parentId != null) {
+            mainService.removeObject(params.parentId)
+            status.success = true;
+        }
+
+        render status as JSON
+    }
+
     def tree = {
 
 

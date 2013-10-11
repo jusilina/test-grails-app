@@ -28,4 +28,24 @@ class Person {
     static hasMany = [projects: Project]
     static belongsTo = [Project]
 
+    def beforeDelete()
+    {
+        Project.withNewSession {
+            def projects = Project.findAll()
+            projects.each {
+                if (it.persons.contains(this))
+                {
+                    it.removeFromPersons(this)
+                    it.save()
+                    println('Delete '+getThisObject().name + ' from '+it.name)
+                }
+            }
+
+
+        }
+
+    }
+
+
+
 }

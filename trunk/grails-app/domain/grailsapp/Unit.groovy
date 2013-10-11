@@ -13,7 +13,10 @@ class Unit {
     static  hasMany = [projects: Project]
     static belongsTo = [company: Company]
 
+
+
     static mapping = {
         sort name:"desc"
+        projects cascade: 'all-delete-orphan'
     }
 }
