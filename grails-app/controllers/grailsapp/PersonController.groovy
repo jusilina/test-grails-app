@@ -82,6 +82,7 @@ class PersonController {
         redirect(action: "show", id: personInstance.id)
     }
 
+
     def delete(Long id) {
         def personInstance = Person.get(id)
         if (!personInstance) {

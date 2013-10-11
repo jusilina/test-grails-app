@@ -369,7 +369,32 @@ var addObjectPanel = Ext.create('Ext.form.Panel',{
 
 
 
+var deleteNode = function ()
+{
+    var remove = confirm('Do you want to remove object?');
+    if (remove)
+    {
+        var parentId =  Ext.getCmp('mainTree').selModel.selected.items[0].internalId;
+        Ext.Ajax.request({
+            url: 'removeObject',
+            method: 'POST',
+            params: {
+                parentId: parentId
+            },
+         //   jsonData: writer.getRecordData(record),
+            success: function() {
+                Ext.Msg.alert('success');
+                store.load();
+              //  console.log('success');
+            },
+            failure: function() {
+                Ext.Msg.alert('woops');
+              //  console.log('woops');
+            }
+        });
 
+    }
+}
 
 
 
@@ -476,11 +501,11 @@ Architecture = function(){
 
 
    // store.load();
+////
+//    Ext.define('MyCompany',{extend: 'Ext.data.Model',
+//    fields:['id','name']
 //
-    Ext.define('MyCompany',{extend: 'Ext.data.Model',
-    fields:['id','name']
-
-    });
+//    });
 
 
     var info = Ext.create('Ext.form.Panel',{
@@ -685,7 +710,8 @@ Architecture = function(){
             itemId: 'edit',
             handler: showEditWindow
         },{
-            itemId: 'delete'
+            itemId: 'delete',
+            handler: deleteNode
         }]
     });
 
