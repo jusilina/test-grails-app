@@ -8,8 +8,7 @@ class MainController {
     def mainService
 
     def index = {
-//        redirect(url: '/main/viewArchitecture')
-        redirect(action: viewArchitecture)
+        redirect(url: "/main/viewArchitecture", params: params)
     }
 
     def viewArchitecture = {
@@ -17,30 +16,45 @@ class MainController {
     }
 
 
-    def getInfo (String objectId) {
+    def getInfo(String objectId) {
 
         def object = [success: true];
 
         def findOblect = mainService.getModel(objectId);
         def data = [title: findOblect.name];
 
-        if(findOblect instanceof Company)
-        {
+        if (findOblect instanceof Company) {
             data << [email: findOblect.email, description: findOblect.description];
-        }
-        else if (findOblect instanceof Person)
-        {
-            data  << [email: findOblect.mail, surname: findOblect.surname, loginName: findOblect.loginName, phone: findOblect.phone, birthday: findOblect.birthday.format('dd/MMM/yyyy')]
-        }
-        else
-        {
+        } else if (findOblect instanceof Person) {
+            data << [email: findOblect.mail, surname: findOblect.surname, loginName: findOblect.loginName, phone: findOblect.phone]
+            if (findOblect.birthday != null)
+            {
+                data <<  [birthday: findOblect.birthday.format('dd/MMM/yyyy')]
+            }
+        } else {
             data << [description: findOblect.description];
         }
 
 
-        object << [data:data]
+        object << [data: data]
 
         render object as JSON
+    }
+
+    def saveObject = {
+//        def queryTerm = params
+        def status = [success: false, msg: ''] ;
+        if (null != params && !params.isEmpty()) {
+            status = mainService.saveObject(params)
+        }
+
+
+
+       print 'saveObject method'
+
+//        def object = [success: status.success, msg: status.msg];
+        render status as JSON
+
     }
 
     def tree = {
@@ -52,49 +66,40 @@ class MainController {
         Company.list().each {
 
 //            companyList << [text: it.name, description: it.description]
-            def company = [text: it.name, id: it.name+'_cmp']
+            def company = [text: it.name, id: it.name + '_cmp']
 
             def unitList = []
             def unitsCount = it.units.size();
-            if (unitsCount == 0)
-            {
+            if (unitsCount == 0) {
                 company << [leaf: true]
-            }
-            else
-            {
+            } else {
                 it.units.each {
                     def projectList = []
                     def projectCount = it.projects.size();
-                    def unit = [text: it.name, id: it.name+'_unit']
-                    if(projectCount == 0)
-                    {
+                    def unit = [text: it.name, id: it.name + '_unt']
+                    if (projectCount == 0) {
                         unit << [leaf: true]
-                    }
-                    else
-                    {
+                    } else {
                         it.projects.each {
 
                             def personCount = it.persons.size();
-                            def project = [text: it.name, id: it.name+'_prj']
-                            if(personCount == 0)
-                            {
+                            def project = [text: it.name, id: it.name + '_prj']
+                            if (personCount == 0) {
                                 project << [leaf: true]
-                            }
-                            else
-                            {
+                            } else {
                                 def personList = []
 
                                 it.persons.each {
-                                    personList << [text: it.name + ' '+ it.surname, id:project.id+it.loginName+'_prs', leaf: true]
+                                    personList << [text: it.name + ' ' + it.surname, id: project.id + it.loginName + '_prs', leaf: true]
                                 }
                                 project << [data: personList]
                             }
                             projectList << project
 
                         }
-                         unit << [data: projectList]
+                        unit << [data: projectList]
                     }
-                     unitList << unit
+                    unitList << unit
                 }
                 company << [data: unitList]
             }
