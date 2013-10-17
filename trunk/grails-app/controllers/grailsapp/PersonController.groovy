@@ -5,6 +5,7 @@ import org.springframework.dao.DataIntegrityViolationException
 class PersonController {
     def scaffold = true
 
+    def mainService
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     def index() {
@@ -92,11 +93,40 @@ class PersonController {
         }
 
         try {
+            mainService.beforeDeleteAction(personInstance)
+
+//            def projects = Project.list()
+//
+//            projects.each {
+//                def project = it
+//                log.info 'Project name: '+ project.name
+//
+//                if (project.persons.contains(personInstance))
+//                {
+////                    try {
+//                        log.info 'Project: '+project.name +' contains person: ' + personInstance.name
+//
+//                        project.removeFromPersons(personInstance)
+//                        log.info 'Person was removed from project'
+//                        project.save(flush:true)
+//                        log.info 'Delete '+personInstance.name + ' from '+it.name
+////                    }
+////                    catch (Exception e)
+////                    {
+////                        log.error(e.printStackTrace())
+////                    }
+//                }
+//            }
+
+
+
+
             personInstance.delete(flush: true)
             flash.message = message(code: 'default.deleted.message', args: [message(code: 'person.label', default: 'Person'), id])
             redirect(action: "list")
         }
         catch (DataIntegrityViolationException e) {
+            log.error(e.printStackTrace())
             flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'person.label', default: 'Person'), id])
             redirect(action: "show", id: id)
         }
