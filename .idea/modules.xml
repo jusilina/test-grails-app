@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/test-grails-app.iml" filepath="$PROJECT_DIR$/test-grails-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/test-grails-app-grailsPlugins.iml" filepath="$PROJECT_DIR$/test-grails-app-grailsPlugins.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test-grails_app-Client/test-grails_app-Client.iml" filepath="$PROJECT_DIR$/test-grails_app-Client/test-grails_app-Client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test-grails_app-Client/test-grails_app-Client-grailsPlugins.iml" filepath="$PROJECT_DIR$/test-grails_app-Client/test-grails_app-Client-grailsPlugins.iml" />
     </modules>
   </component>
 </project>

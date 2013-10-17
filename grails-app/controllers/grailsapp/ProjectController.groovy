@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException
 
 class ProjectController {
     def scaffold = true
+    def mainService
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
@@ -91,6 +92,8 @@ class ProjectController {
         }
 
         try {
+            mainService.beforeDeleteAction(projectInstance)
+
             projectInstance.delete(flush: true)
             flash.message = message(code: 'default.deleted.message', args: [message(code: 'project.label', default: 'Project'), id])
             redirect(action: "list")

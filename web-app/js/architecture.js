@@ -11,27 +11,11 @@ Ext.require([
     'Ext.layout.container.Border'
 ]);
 
-//var updateParentValue = function(){
-//    var treePanel = Ext.getCmp('mainTree');
-//    var selectedNode = treePanel.selModel.selected.items;
-//    var selectedTreeNode
-//
-//
-//    if(selectedNode.length > 0)
-//    {
-//        selectedTreeNode = selectedNode[0].internalId;
-//
-//    }
-//
-//
-//    var itemName = selectedTreeNode.substring(0, selectedTreeNode.length - 4);
-//    addObjectPanel.getForm().setValues([{id:'parent', value: itemName}]);
-//}
 
 // Add the additional 'advanced' VTypes
 Ext.apply(Ext.form.field.VTypes, {
 
-    mypassword: function(val, field) {
+    mypassword: function (val, field) {
         if (field.initialPassField) {
             var pwd = field.up('form').down('#' + field.initialPassField);
             return (val == pwd.getValue());
@@ -44,176 +28,174 @@ Ext.apply(Ext.form.field.VTypes, {
 
 
 
-var showAddWindow = function(){
+var saveForm = function () {
+    var form = addObjectPanel.getForm();
+    var parentId = Ext.getCmp('mainTree').selModel.selected.items[0].internalId;
+    if (form.isValid()) {
+        form.submit({
+            clientValidation: true,
+            url: 'saveObject',
+            params: {
+                newStatus: 'delivered',
+                parent: parentId,
+                exist: false
+            },
+            success: function (form, action) {
+                Ext.Msg.alert('Success', action.result.msg);
+                store.load();
+                Ext.getCmp('mainTree').expand();
+                Ext.getCmp('mainTree').enable();
+                Ext.getCmp('winAddEdit').close();
+                addObjectPanel.getForm().reset();
+            },
+            failure: function (form, action) {
+                Ext.Msg.alert('Failed', action.result.msg);
+            }
+        });
+    }
+    console.log(addObjectPanel.getForm().isValid());
+}
+
+var showAddWindow = function () {
     console.log();
 
-        var treePanel = Ext.getCmp('mainTree');
-        var selectedNode = treePanel.selModel.selected.items;
-         var selectedTreeNode
+    var treePanel = Ext.getCmp('mainTree');
+    var selectedNode = treePanel.selModel.selected.items;
+    var selectedTreeNode
 
 
-        if(selectedNode.length > 0)
-        {
-            selectedTreeNode = selectedNode[0].internalId;
-            console.log(selectedTreeNode);
-        }
+    if (selectedNode.length > 0) {
+        selectedTreeNode = selectedNode[0];
+        console.log(selectedTreeNode);
+    }
 
-        var itemId = selectedTreeNode.split("_").splice(-1, 1);
-        var itemName = selectedTreeNode.substring(0, selectedTreeNode.length - 4);
+    var itemId = selectedTreeNode.internalId.split("_").splice(-1, 1);
+    var itemName = selectedTreeNode.data.text;
 
-        if (!this.addWin)
-        {
-            this.addWin = new Ext.Window({
-                id: 'winAdd',
-               width:700,
-//                height:300,
-                maximizable:true,
-                region: 'center',
-                closable: false,
-                closeAction: 'hide',
-                // title: 'Add',
-                layout:'fit',
-                align: 'stretch'
-            })
-        }
+      var addWin = Ext.getCmp('winAddEdit');
+    addObjectPanel.removeAll(false);
+    if (itemId == "cmp") {   //add unit
+        addWin.setTitle('Add department');
+        addObjectPanel.add(addNameField);
+        addObjectPanel.add(addDescription);
+        displayParent.fieldLabel = 'Company';
+        addObjectPanel.add(displayParent);
+    }
+    else if (itemId == "unt") {      //add project
+        addWin.setTitle('Add project');
+        addObjectPanel.add(addNameField);
+        addObjectPanel.add(addDescription);
+        displayParent.fieldLabel = 'Unit';
+        addObjectPanel.add(displayParent);
+    }
+    else if (itemId == "prj") {          //add person
+        addWin.setTitle('Add person');
+        addObjectPanel.add(addNameField);
+        addObjectPanel.add(addSurnameField);
 
-         addObjectPanel.removeAll(false);
-        if (itemId=="cmp") {   //add unit
-             this.addWin.title = 'Add department';
-            addObjectPanel.add(addNameField);
-            addObjectPanel.add(addDescription);
-            displayParent.fieldLabel = 'Company';
-            addObjectPanel.add(displayParent);
-        }
-        else if (itemId=="unt") {      //add project
-            this.addWin.title = 'Add project';
-            addObjectPanel.add(addNameField);
-            addObjectPanel.add(addDescription);
-            displayParent.fieldLabel = 'Unit';
-            addObjectPanel.add(displayParent);
-        }
-        else if (itemId=="prj") {          //add person
-            this.addWin.title = 'Add person';
-            addObjectPanel.add(addNameField);
-            addObjectPanel.add (addSurnameField);
+        addObjectPanel.add(addBirthdayField);
 
-            addObjectPanel.add (addBithdayField);
+        addObjectPanel.add(addPhoneField);
+        addObjectPanel.add(addMailField);
 
-            addObjectPanel.add(addMailField);
-            addObjectPanel.add(addLoginNameField);
-          //  addPassword.applyEmptyText();
-            addObjectPanel.add(addPassword);
+        addObjectPanel.add(addLoginNameField);
+        //  addPassword.applyEmptyText();
+        addObjectPanel.add(addPassword);
 
-            displayParent.fieldLabel = 'Project';
-            addObjectPanel.add(displayParent);
+        displayParent.fieldLabel = 'Project';
+        addObjectPanel.add(displayParent);
 
-        }
-//        else if (itemId=="prs") {
-//
-//        }
+    }
 
-        addObjectPanel.add(buttonsPanel) ;
-
-        Ext.getCmp('mainTree').disable();
-
-//        else if (this.win.disabled)
-//        {
-//            this.win.enable();
-//        }
+    addObjectPanel.add(buttonsPanel);
+    buttonsPanel.getComponent('save').setHandler(saveForm)
 
 
-    this.addWin.insert(0,addObjectPanel);
-    this.addWin.show();
-    addObjectPanel.getForm().setValues([{id:'parent', value: itemName}]);
+    Ext.getCmp('mainTree').disable();
+
+    addWin.insert(0, addObjectPanel);
+    addWin.show();
+    addObjectPanel.getForm().setValues([
+        {id: 'parent', value: itemName}
+    ]);
 
 
 }
 
-var closeWindow = function(){
+var closeWindow = function () {
     Ext.getCmp('mainTree').enable();
-    Ext.getCmp('winAdd').close();
+    Ext.getCmp('winAddEdit').close();
 
+    addObjectPanel.getForm().reset();
+
+}
+
+
+var updateForm = function () {
+    var form = addObjectPanel.getForm();
+    var idAndType =  Ext.getCmp('mainTree').selModel.selected.items[0].internalId;
+    if (form.isValid()) {
+        form.submit({
+            clientValidation: true,
+            url: 'saveObject',
+            params: {
+                exist: true,
+                newStatus: 'delivered',
+                id: idAndType
+            },
+            success: function (form, action) {
+                Ext.Msg.alert('Success', action.result.msg);
+                store.load();
+                Ext.getCmp('mainTree').expand();
+                Ext.getCmp('mainTree').enable();
+                Ext.getCmp('winAddEdit').close();
+            },
+            failure: function (form, action) {
+                Ext.Msg.alert('Failed', action.result.msg);
+            }
+        });
+    }
+    console.log(addObjectPanel.getForm().isValid());
 }
 
 var buttonsPanel = Ext.create('Ext.Container', {
 
     border: false,
     region: 'south',
+    items: [
+        {
+            xtype: 'button',
+            text: 'Save',
+            itemId: 'save',
+            margin: 5,
+            handler: saveForm
+        },
+        {
+            xtype: 'button',
+            text: 'Cancel',
+            margin: 5,
 
-    items: [{
-        xtype: 'button',
-        text: 'Save',
-        margin: 5,
-
-
-        handler: function() {
-            var form = addObjectPanel.getForm();
-            var parentId =  Ext.getCmp('mainTree').selModel.selected.items[0].internalId;
-            if(form.isValid())
-            {
-                 form.submit({
-                     clientValidation: true,
-                     url: 'saveObject',
-                     params: {
-                         newStatus: 'delivered',
-                         parent: parentId
-                     },
-                     success: function(form, action){
-                     //  closeWindow;
-                         Ext.Msg.alert('Success', action.result.msg);
-                         store.load();
-                         Ext.getCmp('mainTree').expand();
-                         Ext.getCmp('mainTree').enable();
-                         Ext.getCmp('winAdd').close();
-                     }
-                     ,
-                     failure: function(form, action) {
-                         Ext.Msg.alert('Failed', action.result.msg);
-                     }
-
-
-                 });
-
-
-            }
-
-
-//            panel.getForm().load(
-//                {
-//                    url: 'getInfo',
-//                    params: {
-//                        objectId: r.data.id
-//                    }
-//
-//                }
-//            )
-            console.log(addObjectPanel.getForm().isValid());
+            handler: closeWindow
         }
-    },{
-        xtype: 'button',
-        text: 'Cancel',
-        margin: 5,
-
-        handler: closeWindow
-    }]
+    ]
 });
 
 
-
-var infoCompany = Ext.create('Ext.form.Panel',{
+var infoCompany = Ext.create('Ext.form.Panel', {
 
     title: 'Company Information ',
     border: false,
     bodyPadding: 5,
 
-    items: [{
-        xtype: 'displayfield',
-        name: 'title',
-        fieldLabel: 'Title'
-    },
+    items: [
         {
             xtype: 'displayfield',
-            name: 'email',
+            name: 'title',
+            fieldLabel: 'Title'
+        },
+        {
+            xtype: 'displayfield',
+            name: 'mail',
             fieldLabel: 'Email'
 
         },
@@ -221,26 +203,29 @@ var infoCompany = Ext.create('Ext.form.Panel',{
             xtype: 'displayfield',
             name: 'description',
             fieldLabel: 'Description'
-        }]
+        }
+    ]
 });
 
-var infoProject = Ext.create('Ext.form.Panel',{
+var infoProject = Ext.create('Ext.form.Panel', {
 
     title: 'Project Information',
     region: 'center',
     border: false,
 
-    items: [{
-        xtype: 'displayfield',
-        name: 'title',
-        fieldLabel: 'Title'
-    },
+    items: [
+        {
+            xtype: 'displayfield',
+            name: 'title',
+            fieldLabel: 'Title'
+        },
 
         {
             xtype: 'displayfield',
             name: 'description',
             fieldLabel: 'Description'
-        }]
+        }
+    ]
 });
 var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
 
@@ -260,8 +245,9 @@ var addSurnameField = {
     tooltip: 'Enter the surname'
 }
 
-var addBithdayField = {
+var addBirthdayField = {
     xtype: 'datefield',
+    format: 'd/m/Y',
     name: 'birthday',
     fieldLabel: 'Date of birth'
 }
@@ -274,30 +260,23 @@ var addLoginNameField = {
 }
 
 var addMailField = {
-    name: 'email',
+    name: 'mail',
     fieldLabel: 'Email',
-    vtype:'email'
+    vtype: 'email'
 
 }
-var addMailField = {
+var addPhoneField = {
     name: 'phone',
     fieldLabel: 'Mobile phone',
-    maxSize: 12
+    maxLength: 12
+
 }
-
-
 
 
 var addPassword = Ext.create('Ext.Container', {
-
-    //frame: true,
     border: false,
-//    fieldDefaults: {
-//        labelWidth: 125,
-//        msgTarget: 'side',
-//        autoFitErrors: false
-//    },
-    defaults:{
+
+    defaults: {
         inputType: 'password',
         afterLabelTextTpl: required,
         allowBlank: false,
@@ -309,26 +288,25 @@ var addPassword = Ext.create('Ext.Container', {
         type: 'hbox'
     },
 
-    items: [{
-        minSize: 3,
-        id: 'pass',
-        name: 'pass',
-        fieldLabel: 'Password'
+    items: [
+        {
+            minSize: 3,
+            id: 'password',
+            name: 'password',
+            fieldLabel: 'Password'
 
-    },{
-        fieldLabel: 'Confirm Password',
-        vtype: 'mypassword',
-        initialPassField: 'pass'
-    }]
+        },
+        {
+
+            fieldLabel: 'Confirm Password',
+            vtype: 'mypassword',
+            name: 'confpass',
+            padding: '-5 0 0 10',
+            initialPassField: 'password'
+        }
+    ]
 
 });
-
-var addPhoneField = {
-    name: 'phone',
-    fieldLabel: 'Phone',
-    vtype:'email'
-
-}
 
 var addDescription = {
     xtype: 'textarea',
@@ -339,57 +317,79 @@ var addDescription = {
 var displayParent = {
     xtype: 'displayfield',
     name: 'parent'
-   // fieldLabel: 'parentName'
+    // fieldLabel: 'parentName'
 }
 
-var addObjectPanel = Ext.create('Ext.form.Panel',{
+var allProjects = Ext.create('Ext.data.Store', {
+   // autoLoad: true,
+    fields: ['id', 'name'],
+    proxy: {
+        type: 'ajax',
+        url: 'allProjects',
+
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
+});
+
+var addPersonToProject = Ext.create('Ext.Container', {
+    border: false,
+
+    layout: {
+        type: 'hbox'
+    },
+
+    items: [   {
+         //   displayParent
+        xtype: 'displayfield',
+    name: 'parent',
+     fieldLabel: 'parentName' }
+        ,
+        {
+
+            xtype: 'combobox' ,
+            fieldLabel: 'Add person to other project',
+            name: 'otherProject',
+            store: allProjects,
+            displayField: 'name',
+            padding: '0 0 0 10',
+            valueField: 'id'
+
+        }
+    ]
+
+});
+
+var addObjectPanel = Ext.create('Ext.form.Panel', {
     id: 'addProjectPanel',
     region: 'center',
     border: false,
     bodyPadding: 5,
-  //  layout: 'vbox',
+    //  layout: 'vbox',
 
 
     defaultType: 'textfield'
-//    listeners:
-//    {
-//        reset: updateParentValue
-//    }
-//    items: [{   name: 'title',
-//        fieldLabel: 'Name',
-//        afterLabelTextTpl: required,
-//        allowBlank: false,
-//        tooltip: 'Enter the name of project'},
-//        addDescription,
-//        displayParent
-//    ]
+
 });
 
-
-
-
-
-var deleteNode = function ()
-{
+var deleteNode = function () {
     var remove = confirm('Do you want to remove object?');
-    if (remove)
-    {
-        var parentId =  Ext.getCmp('mainTree').selModel.selected.items[0].internalId;
+    if (remove) {
+        var parentId = Ext.getCmp('mainTree').selModel.selected.items[0].internalId;
         Ext.Ajax.request({
             url: 'removeObject',
             method: 'POST',
             params: {
                 parentId: parentId
             },
-         //   jsonData: writer.getRecordData(record),
-            success: function() {
+            success: function () {
                 Ext.Msg.alert('success');
                 store.load();
-              //  console.log('success');
             },
-            failure: function() {
+            failure: function () {
                 Ext.Msg.alert('woops');
-              //  console.log('woops');
             }
         });
 
@@ -398,90 +398,144 @@ var deleteNode = function ()
 
 
 
-var showEditWindow = function(){
+var showEditWindow = function () {
     console.log();
-    if(!win){
-        var treePanel = Ext.getCmp('mainTree');
-        var selectedNode = treePanel.selModel.selected.items;
-        if(selectedNode.length > 0)
-        {
-            var node = selectedNode[0];
-            console.log(node.internalId);
-        }
 
-        Ext.getCmp('mainViewport').disable();
-        var win = new Ext.Window({
-            width:1000,
-            height:300,
+    var treePanel = Ext.getCmp('mainTree');
+    var selectedNode = treePanel.selModel.selected.items;
+    var selectedTreeNode
 
-            title: 'Edit',
-            // html:'<h1>Тут размещается код HTML ${node}</h2>',
-            layout:'fit',
-            bodyStyle:{'background-color': '#FFFFFF'},
-            items: [
-//                infoCompany
-                ],
-            listeners:{
-                close:function(){
-                    Ext.getCmp('mainViewport').enable();
-                }
+
+    if (selectedNode.length > 0) {
+        selectedTreeNode = selectedNode[0].internalId;
+        console.log(selectedTreeNode);
+    }
+
+    var itemType = selectedTreeNode.split("_").splice(-1, 1);
+ //   var itemId = selectedTreeNode.substring(0, selectedTreeNode.length - 4);
+
+    var addWin = Ext.getCmp('winAddEdit');
+    addObjectPanel.removeAll(false);
+    if (itemType == "unt") {      //edit unit
+        addWin.setTitle('Edit department');
+        addObjectPanel.add(addNameField);
+        addObjectPanel.add(addDescription);
+        displayParent.fieldLabel = 'Company';
+        addObjectPanel.add(displayParent);
+    }
+    else if (itemType == "prj") {          //edit project
+        addWin.setTitle('Edit project');
+        addObjectPanel.add(addNameField);
+        addObjectPanel.add(addDescription);
+        displayParent.fieldLabel = 'Department';
+        addObjectPanel.add(displayParent);
+    }
+
+    else if (itemType == "prs") {   //edit person
+        addWin.setTitle('Edit person');
+        addObjectPanel.add(addNameField);
+        addObjectPanel.add(addSurnameField);
+
+        addObjectPanel.add(addBirthdayField);
+
+        addObjectPanel.add(addMailField);
+        addObjectPanel.add(addPhoneField);
+        addObjectPanel.add(addLoginNameField);
+        //  addPassword.applyEmptyText();
+        addObjectPanel.add(addPassword);
+
+        displayParent.fieldLabel = 'Projects';
+      //  addObjectPanel.add(displayParent);
+        allProjects.load({
+            params: {
+                prsId: selectedTreeNode
             }
         })
+        addObjectPanel.add(addPersonToProject);
     }
-    win.show();
+
+
+    addObjectPanel.add(buttonsPanel);
+    buttonsPanel.getComponent('save').setHandler(updateForm)
+
+    Ext.getCmp('addProjectPanel').doLayout();
+    addObjectPanel.getForm().load(
+        {
+            url: 'getInfo',
+            params: {
+                objectId: selectedTreeNode
+            }
+        }
+    )
+
+    Ext.getCmp('addProjectPanel').update();
+
+
+    Ext.getCmp('mainTree').disable();
+
+    addWin.insert(0, addObjectPanel);
+    addWin.show();
+
 }
 
 
 var store = Ext.create('Ext.data.TreeStore', {
-    //model: 'MyCompany',
     id: 'companyTree',
     autoLoad: true,
-    root:{
+    root: {
         text: "Companies"
     },
-    proxy:{
+    proxy: {
 //        type: 'jsonp',
 //        url: 'http://localhost:9999/GrailsApp/company/tree',
         type: 'ajax',
         url: 'tree',
 
-        reader:{
-            type:'json',
+        reader: {
+            type: 'json',
             root: 'data'
         }
     }
-
-
 });
 
 
-Architecture = function(){
+Architecture = function () {
+  //  if (!this.addWin) {
+        var addWin = new Ext.Window({
+            id: 'winAddEdit',
+            width: 700,
+            maximizable: true,
+            region: 'center',
+            closable: false,
+            closeAction: 'hide',
+            layout: 'fit',
+            align: 'stretch'
+        })
+   // }
 
-    var viewInformation = function(s,r)
-    {
+    var viewInformation = function (s, r) {
         var itemId = r.data.id.split("_").splice(-1, 1);
         Ext.getCmp('infoPanel').remove(0, false);
 
         var panel;
-        if (itemId=="cmp") {
-            Ext.getCmp('infoPanel').insert(0,infoCompany);
+        if (itemId == "cmp") {
+            Ext.getCmp('infoPanel').insert(0, infoCompany);
             panel = infoCompany;
         }
-        else if (itemId=="unt") {
-            Ext.getCmp('infoPanel').insert(0,infoUnit);
+        else if (itemId == "unt") {
+            Ext.getCmp('infoPanel').insert(0, infoUnit);
             panel = infoUnit;
         }
-        else if (itemId=="prj") {
-            Ext.getCmp('infoPanel').insert(0,infoProject);
+        else if (itemId == "prj") {
+            Ext.getCmp('infoPanel').insert(0, infoProject);
             panel = infoProject;
         }
-        else if (itemId=="prs") {
+        else if (itemId == "prs") {
 
-            Ext.getCmp('infoPanel').insert(0,infoPerson);
+            Ext.getCmp('infoPanel').insert(0, infoPerson);
             panel = infoPerson;
         }
-        if (null == panel)
-        {
+        if (null == panel) {
             return
         }
 
@@ -499,69 +553,64 @@ Architecture = function(){
         Ext.getCmp('infoPanel').update();
     }
 
-
-   // store.load();
-////
-//    Ext.define('MyCompany',{extend: 'Ext.data.Model',
-//    fields:['id','name']
-//
-//    });
-
-
-    var info = Ext.create('Ext.form.Panel',{
-        id:'infoPanel',
+    var info = Ext.create('Ext.form.Panel', {
+        id: 'infoPanel',
         region: 'center'
     });
 
-
-    var infoProject = Ext.create('Ext.form.Panel',{
+    var infoProject = Ext.create('Ext.form.Panel', {
 
         title: 'Project Information',
         region: 'center',
         border: false,
 
-        items: [{
-            xtype: 'displayfield',
-            name: 'title',
-            fieldLabel: 'Title'
-        },
+        items: [
+            {
+                xtype: 'displayfield',
+                name: 'title',
+                fieldLabel: 'Title'
+            },
             {
                 xtype: 'displayfield',
                 name: 'description',
                 fieldLabel: 'Description'
-            }]
+            }
+        ]
     });
 
 
-    var infoUnit = Ext.create('Ext.form.Panel',{
+    var infoUnit = Ext.create('Ext.form.Panel', {
 
         title: 'Department Information ',
         region: 'center',
         border: false,
 
-        items: [{
-            xtype: 'displayfield',
-            name: 'title',
-            fieldLabel: 'Title'
-        },
+        items: [
+            {
+                xtype: 'displayfield',
+                name: 'title',
+                fieldLabel: 'Title'
+            },
             {
                 xtype: 'displayfield',
                 name: 'description',
                 fieldLabel: 'Description'
-            }]
+            }
+        ]
     });
 
-    var infoPerson = Ext.create('Ext.form.Panel',{
+    var infoPerson = Ext.create('Ext.form.Panel', {
 
         title: 'Person Information ',
         region: 'center',
         border: false,
 
-        items: [{
-            xtype: 'displayfield',
-            name: 'title',
-            fieldLabel: 'Name'
-        },
+        items: [
+            {
+                xtype: 'displayfield',
+                name: 'title',
+                fieldLabel: 'Name'
+            },
             {
                 xtype: 'displayfield',
                 name: 'surname',
@@ -578,40 +627,44 @@ Architecture = function(){
                 xtype: 'tabpanel',
                 border: false,
 
-                items:[
+                items: [
                     {
                         title: 'Contact information',
                         border: false,
-                        items: [{
-                            xtype: 'displayfield',
-                            name: 'email',
-                            fieldLabel: 'Email'
-                        },
-                         {
-                             xtype: 'displayfield',
-                             name: 'phone',
-                             fieldLabel: 'Phone'
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                name: 'mail',
+                                fieldLabel: 'Email'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                name: 'phone',
+                                fieldLabel: 'Phone'
 
-                         }]
+                            }
+                        ]
                     },
                     {
                         title: 'Other information',
                         border: false,
-                        items: [{
-                            xtype: 'displayfield',
-                            name: 'birthday',
-                            fieldLabel: 'Birthday'
-                        }]
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                name: 'birthday',
+                                fieldLabel: 'Birthday'
+                            }
+                        ]
                     }
 
                 ]
             }
-            ]
+        ]
     });
 
     var tree = Ext.create('Ext.tree.Panel', {
-        id:'mainTree',
-       store: store,
+        id: 'mainTree',
+        store: store,
 //        root: data1,
         viewConfig: {
             plugins: {
@@ -630,10 +683,10 @@ Architecture = function(){
             listeners: {
 
                 itemclick: {
-                   fn: viewInformation
+                    fn: viewInformation
                 },
 
-                itemcontextmenu: function(view, rec, node, index, e) {
+                itemcontextmenu: function (view, rec, node, index, e) {
 //                    node.select();
                     e.stopEvent();
 
@@ -642,23 +695,22 @@ Architecture = function(){
                     var deleteItem = contextMenu.getComponent('delete');
                     var itemId = node.id.split("_").splice(-1, 1);
 
-                    if (itemId=="cmp") {
+                    if (itemId == "cmp") {
                         addItem.setText('Add Department');
                         addItem.setVisible(true);
                         deleteItem.setVisible(false);
                         editItem.setVisible(false);
-//                        editItem.setHandler(showWindow);
                     }
 
-                    else if (itemId=="unt") {
+                    else if (itemId == "unt") {
                         addItem.setText('Add Project');
                         editItem.setText('Edit Department');
                         deleteItem.setText('Remove Department');
                         addItem.setVisible(true);
                         deleteItem.setVisible(true);
                         editItem.setVisible(true);
-                   }
-                   else if (itemId=="prj") {
+                    }
+                    else if (itemId == "prj") {
                         addItem.setText('Add Employee');
                         editItem.setText('Edit Project');
                         deleteItem.setText('Remove Project');
@@ -666,15 +718,14 @@ Architecture = function(){
                         deleteItem.setVisible(true);
                         editItem.setVisible(true);
                     }
-                    else if (itemId=="prs") {
+                    else if (itemId == "prs") {
                         addItem.setVisible(false);
                         deleteItem.setVisible(true);
                         editItem.setVisible(true);
                         deleteItem.setText('Remove Employee');
                         editItem.setText('Edit Employee');
                     }
-                    else
-                    {
+                    else {
                         return false;
                     }
 
@@ -684,52 +735,57 @@ Architecture = function(){
                 }
             }
         },
-        dockedItems: [{
-            xtype: 'toolbar',
-            items: [{
-                text: 'Expand All',
-                handler: function(){
-                    tree.expandAll();
-                }
-            }, {
-                text: 'Collapse All',
-                handler: function(){
-                    tree.collapseAll();
-                }
-            }]
-        }]
+        dockedItems: [
+            {
+                xtype: 'toolbar',
+                items: [
+                    {
+                        text: 'Expand All',
+                        handler: function () {
+                            tree.expandAll();
+                        }
+                    },
+                    {
+                        text: 'Collapse All',
+                        handler: function () {
+                            tree.collapseAll();
+                        }
+                    }
+                ]
+            }
+        ]
     });
-
 
     var contextMenu = Ext.create('Ext.menu.Menu', {
         plain: true,
-        items: [{
-            itemId: 'add',
-            handler: showAddWindow
-        },{
-            itemId: 'edit',
-            handler: showEditWindow
-        },{
-            itemId: 'delete',
-            handler: deleteNode
-        }]
+        items: [
+            {
+                itemId: 'add',
+                handler: showAddWindow
+            },
+            {
+                itemId: 'edit',
+                handler: showEditWindow
+            },
+            {
+                itemId: 'delete',
+                handler: deleteNode
+            }
+        ]
     });
 
 
-
-    Ext.create('Ext.container.Viewport',{
+    Ext.create('Ext.container.Viewport', {
             id: 'mainViewport',
 
             layout: 'border',
 
-            items : [
+            items: [
                 tree,
                 info
             ]
-    }
+        }
     );
 }
-
-
 
 Ext.onReady(Architecture);
